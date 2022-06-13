@@ -3,17 +3,24 @@ package main
 import (
 	"fmt"
 	"net/http"
-
-	"github.com/gorilla/mux"
+	"time"
 )
 
-func TestHandler(w http.ResponseWriter, r *http.Request) {
+const (
+	Port = ":8080"
+)
 
+func serveDynamic(w http.ResponseWriter, r *http.Request) {
+	response := "The time is now " + time.Now().String()
+	fmt.Fprintln(w, response)
+}
+
+func serveStatic(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static.html")
 }
 
 func main() {
-	router := mux.NewRouter()
-	router.HandleFunc("/test", TestHandler)
-	http.Handle("/", router)
-	fmt.Println("Everything is set up!")
+	http.HandleFunc("/static", serveStatic)
+	http.HandleFunc("/", serveDynamic)
+	http.ListenAndServe(Port, nil)
 }
