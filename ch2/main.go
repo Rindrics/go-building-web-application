@@ -22,6 +22,8 @@ func pageHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/pages/{id:[0-9]+}", pageHandler)
+	rtr.HandleFunc("/{id:homepage}", pageHandler)
+	rtr.HandleFunc("/{id:contact}", pageHandler)
 	http.Handle("/", rtr)
 	http.ListenAndServe(PORT, nil)
 }
