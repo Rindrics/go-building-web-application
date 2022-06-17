@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 
@@ -40,8 +41,8 @@ func ServePage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	html := `<html><head><title>` + thisPage.Title + `</title></head><body><h1>` + thisPage.Title + `</h1><div>` + thisPage.Content + `</div></body></html>`
-	fmt.Fprintln(w, html)
+	t, _ := template.ParseFiles("../templates/blog.html")
+	t.Execute(w, thisPage)
 }
 
 func main() {
