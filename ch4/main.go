@@ -47,6 +47,10 @@ func ServePage(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, thisPage)
 }
 
+func RedirIndex(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/home", http.StatusMovedPermanently)
+}
+
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
 	var Pages = []Page{}
 	pages, err := database.Query("SELECT page_title,page_content,page_date FROM pages ORDER BY ? DESC", "page_date")
@@ -75,6 +79,7 @@ func main() {
 
 	routes := mux.NewRouter()
 	routes.HandleFunc("/page/{guid:[0-9a-zA\\-]+}", ServePage)
+	routes.HandleFunc("/", RedirIndex)
 	routes.HandleFunc("/home", ServeIndex)
 	http.Handle("/", routes)
 	http.ListenAndServe(PORT, nil)
