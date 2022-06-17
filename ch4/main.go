@@ -69,6 +69,17 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, Pages)
 }
 
+func (p Page) TruncatedText() string {
+	chars := 0
+	for i := range p.RawContent {
+		chars++
+		if chars > 150 {
+			return p.RawContent[:i] + ` ...`
+		}
+	}
+	return p.RawContent
+}
+
 func main() {
 	dbConn := fmt.Sprintf("%s:%s@tcp(%s)/%s", DBUser, DBPass, DBHost, DBDbase)
 	db, err := sql.Open("mysql", dbConn)
