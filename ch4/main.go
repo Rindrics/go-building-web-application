@@ -27,6 +27,7 @@ type Page struct {
 	RawContent string
 	Content    template.HTML
 	Date       string
+	GUID       string
 }
 
 func ServePage(w http.ResponseWriter, r *http.Request) {
@@ -53,14 +54,14 @@ func RedirIndex(w http.ResponseWriter, r *http.Request) {
 
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
 	var Pages = []Page{}
-	pages, err := database.Query("SELECT page_title,page_content,page_date FROM pages ORDER BY ? DESC", "page_date")
+	pages, err := database.Query("SELECT page_title,page_content,page_date,page_guid FROM pages ORDER BY ? DESC", "page_date")
 	if err != nil {
 		fmt.Fprintln(w, err.Error)
 	}
 	defer pages.Close()
 	for pages.Next() {
 		thisPage := Page{}
-		pages.Scan(&thisPage.Title, &thisPage.RawContent, &thisPage.Date)
+		pages.Scan(&thisPage.Title, &thisPage.RawContent, &thisPage.Date, &thisPage.GUID)
 		thisPage.Content = template.HTML(thisPage.RawContent)
 		Pages = append(Pages, thisPage)
 	}
