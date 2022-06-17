@@ -47,6 +47,23 @@ func ServePage(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, thisPage)
 }
 
+func ServeIndex(w http.ResponseWriter, r *http.Request) {
+	var Pages = []Page{}
+	pages, err := database.Query("SELECT page_title,page_content,page_date FROM pages ORDER BY ? DESC", "page_date")
+	if err != nil {
+		fmt.Fprintln(w, err.Error)
+	}
+	defer pages.Close()
+	for pages.Next() {
+		thisPage := Page{}
+		pages.Scan(&thisPage.Title, &thisPage.RawContent, &thisPage.Date)
+		thisPage.Content = template.HTML(thisPage.RawContent)
+		Pages = append(Pages, thisPage)
+	}
+	t, _ := template.ParseFiles("../templates/index.html")
+	t.Execute(w, Pages)
+}
+
 func main() {
 	dbConn := fmt.Sprintf("%s:%s@tcp(%s)/%s", DBUser, DBPass, DBHost, DBDbase)
 	db, err := sql.Open("mysql", dbConn)
@@ -58,6 +75,7 @@ func main() {
 
 	routes := mux.NewRouter()
 	routes.HandleFunc("/page/{guid:[0-9a-zA\\-]+}", ServePage)
+	routes.HandleFunc("/home", ServeIndex)
 	http.Handle("/", routes)
 	http.ListenAndServe(PORT, nil)
 }
